@@ -1,22 +1,22 @@
 // NEOMINT Design System - Enhanced CSS Variable Detection
-import { 
-  ActivityAlt, Flash, Computer, Phone, Cpu, MemoryCard,
-  TrendingUp, BarChart, WarningTriangle, CheckCircle,
+import {
+  Activity, Flash, Computer, Phone, Cpu, HardDrive,
+  ArrowUp, GraphUp, WarningTriangle, CheckCircle,
   Settings, Code, Package, Rocket, GitBranch, Page
 } from 'iconoir-react';
 
 export const icons = {
   // Performance & Analytics
-  performance: ActivityAlt,
+  performance: Activity,
   optimization: Flash,
   desktop: Computer,
   mobile: Phone,
   cpu: Cpu,
-  memory: MemoryCard,
+  memory: HardDrive,
   
-  // Data & Analytics  
-  analytics: BarChart,
-  trending: TrendingUp,
+  // Data & Analytics
+  analytics: GraphUp,
+  trending: ArrowUp,
   warning: WarningTriangle,
   success: CheckCircle,
   
