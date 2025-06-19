@@ -1,0 +1,8 @@
+src/
+.github/
+build/
+*.log
+.env
+coverage/
+jest.config.js
+rollup.config.js
