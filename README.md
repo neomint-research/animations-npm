@@ -1,8 +1,21 @@
 # @neomint/animations
 
 [![npm version](https://img.shields.io/npm/v/@neomint/animations.svg?style=flat-square)](https://www.npmjs.com/package/@neomint/animations)
+[![Bundle Size](https://img.shields.io/bundlephobia/minzip/@neomint/animations?style=flat-square&label=bundle%20size)](https://bundlephobia.com/package/@neomint/animations)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/neomint-research/animations-npm/ci.yml?branch=main&style=flat-square)](https://github.com/neomint-research/animations-npm/actions)
+[![Coverage Status](https://img.shields.io/codecov/c/github/neomint-research/animations-npm?style=flat-square&label=coverage)](https://codecov.io/gh/neomint-research/animations-npm)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Build Status](https://img.shields.io/github/workflow/status/neomint/animations-npm/CI?style=flat-square)](https://github.com/neomint/animations-npm/actions)
+[![npm downloads](https://img.shields.io/npm/dm/@neomint/animations.svg?style=flat-square)](https://www.npmjs.com/package/@neomint/animations)
+[![Vulnerabilities](https://img.shields.io/snyk/vulnerabilities/npm/@neomint/animations?style=flat-square)](https://snyk.io/test/npm/@neomint/animations)
+[![Dependencies](https://img.shields.io/librariesio/release/npm/@neomint/animations?style=flat-square)](https://libraries.io/npm/@neomint%2Fanimations)
+[![Node Version](https://img.shields.io/node/v/@neomint/animations?style=flat-square)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg?style=flat-square)](https://conventionalcommits.org)
+[![Documentation](https://img.shields.io/badge/documentation-yes-brightgreen.svg?style=flat-square)](https://github.com/neomint-research/animations-npm#readme)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg?style=flat-square)](https://github.com/neomint-research/animations-npm/graphs/commit-activity)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/neomint-research/animations-npm/blob/main/CONTRIBUTING.md)
+[![GitHub Stars](https://img.shields.io/github/stars/neomint-research/animations-npm?style=flat-square&logo=github)](https://github.com/neomint-research/animations-npm)
+[![npm](https://img.shields.io/npm/v/@neomint/animations?style=flat-square&logo=npm)](https://www.npmjs.com/package/@neomint/animations)
 
 **Professional React animation library for advanced data network visualizations**
 
