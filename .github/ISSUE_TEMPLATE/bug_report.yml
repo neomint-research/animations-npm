@@ -1,0 +1,137 @@
+name: Bug Report
+description: Report a bug or issue with animations-npm
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+        
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of @neomint/animations are you using?
+      placeholder: "1.0.0"
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: What environment are you using?
+      options:
+        - Node.js
+        - Browser
+        - React
+        - Vue
+        - Other (please specify)
+    validations:
+      required: true
+      
+  - type: input
+    id: browser-version
+    attributes:
+      label: Browser Version (if applicable)
+      description: Which browser and version are you using?
+      placeholder: "Chrome 120, Firefox 119, Safari 17"
+      
+  - type: input
+    id: react-version
+    attributes:
+      label: React Version (if applicable)
+      description: What version of React are you using?
+      placeholder: "18.2.0"
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: |
+        Describe the bug...
+        
+        Example: The DataNetwork animation freezes after 5 seconds when rendering more than 100 nodes
+    validations:
+      required: true
+      
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Import the DataNetwork component with '...'
+        2. Configure animation with '....'
+        3. Render with 150 nodes
+        4. See animation freeze after 5 seconds
+    validations:
+      required: true
+      
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+      placeholder: Animation should continue smoothly at 60fps regardless of node count
+    validations:
+      required: true
+      
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened
+      placeholder: Animation freezes and drops to 0fps after 5 seconds with high node count
+    validations:
+      required: true
+      
+  - type: textarea
+    id: performance-metrics
+    attributes:
+      label: Performance Metrics (if applicable)
+      description: Any performance data you've collected
+      placeholder: |
+        - Frame rate: 60fps → 0fps
+        - Memory usage: 150MB → 500MB
+        - CPU usage: 15% → 85%
+        
+  - type: textarea
+    id: code-sample
+    attributes:
+      label: Code Sample
+      description: Minimal reproducible example
+      render: jsx
+      placeholder: |
+        ```jsx
+        import { DataNetwork } from '@neomint/animations';
+        
+        function App() {
+          return (
+            <DataNetwork
+              nodes={generateNodes(150)}
+              config={{ animationSpeed: 1.0 }}
+            />
+          );
+        }
+        ```
+        
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots/Recordings
+      description: Add any screenshots or screen recordings that help explain the issue
+      placeholder: Drag and drop images or recordings here
+      
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: |
+        - Device specifications
+        - Other libraries being used
+        - Console errors
+        - Network conditions (for data-driven animations)

@@ -1,0 +1,171 @@
+name: Security Vulnerability Report
+description: Report a security vulnerability in animations-npm
+title: "[Security]: "
+labels: ["security", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        🔒 **Security Vulnerability Reporting**
+        
+        Thank you for helping us keep @neomint/animations secure. Please follow responsible disclosure practices.
+        
+        **For critical vulnerabilities**, please consider emailing security@neomint.com instead of using this public issue tracker.
+        
+        ⚠️ **Do NOT include**:
+        - Exploit code or proof-of-concept attacks
+        - Links to malicious examples
+        - Details that could be used to exploit the vulnerability
+        
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Responsible Disclosure
+      description: Please confirm you understand responsible disclosure
+      options:
+        - label: I have read and understand the responsible disclosure guidelines
+          required: true
+        - label: I have NOT included any exploit code or attack details
+          required: true
+          
+  - type: dropdown
+    id: vulnerability-type
+    attributes:
+      label: Vulnerability Type
+      description: What type of security issue is this?
+      options:
+        - Cross-Site Scripting (XSS)
+        - Memory Leak / Resource Exhaustion
+        - Denial of Service (DoS)
+        - CSS Injection
+        - React Component Security Issue
+        - Supply Chain Vulnerability
+        - Browser-Specific Security Issue
+        - Performance Vulnerability
+        - Other
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity Assessment
+      description: How severe do you believe this vulnerability is?
+      options:
+        - Critical - Remote code execution or data breach possible
+        - High - Significant impact on availability or integrity
+        - Medium - Limited impact or requires specific conditions
+        - Low - Minor issue with minimal impact
+    validations:
+      required: true
+      
+  - type: textarea
+    id: description
+    attributes:
+      label: Vulnerability Description
+      description: Describe the security vulnerability (without exploit details)
+      placeholder: |
+        Provide a clear description of the vulnerability without including exploit code.
+        
+        Example: "User-supplied animation data is not properly sanitized before being rendered, 
+        potentially allowing XSS attacks through malicious SVG content in DataNetwork nodes."
+    validations:
+      required: true
+      
+  - type: textarea
+    id: affected-components
+    attributes:
+      label: Affected Components
+      description: Which components or features are affected?
+      placeholder: |
+        - DataNetwork component
+        - Theme system
+        - Animation configuration parser
+        - Specific version ranges (e.g., 1.0.0 - 1.2.5)
+    validations:
+      required: true
+      
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to Identify (NOT exploit)
+      description: How can we identify/verify this vulnerability exists?
+      placeholder: |
+        1. Create a DataNetwork component
+        2. Pass user-controlled data to node labels
+        3. Observe that HTML content is rendered without sanitization
+        
+        DO NOT include actual malicious payloads
+    validations:
+      required: true
+      
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential Impact
+      description: What could an attacker potentially do with this vulnerability?
+      placeholder: |
+        - Execute arbitrary JavaScript in user's browser
+        - Cause browser tab to become unresponsive
+        - Leak sensitive information from the page
+        - Bypass Content Security Policy
+        
+  - type: textarea
+    id: browsers-affected
+    attributes:
+      label: Affected Browsers/Environments
+      description: Which browsers or environments are affected?
+      placeholder: |
+        - Chrome 120+
+        - Firefox 119+
+        - Safari 17+
+        - React 18.x
+        - Node.js environments
+        
+  - type: textarea
+    id: mitigation
+    attributes:
+      label: Suggested Mitigation
+      description: If you have ideas for fixing this vulnerability
+      placeholder: |
+        - Sanitize all user input before rendering
+        - Implement Content Security Policy headers
+        - Add input validation for animation parameters
+        - Update vulnerable dependencies
+        
+  - type: dropdown
+    id: disclosure-timeline
+    attributes:
+      label: Disclosure Timeline
+      description: When do you plan to disclose this publicly?
+      options:
+        - Following responsible disclosure (90 days)
+        - Already public
+        - No plans to disclose publicly
+        - Other (please specify)
+    validations:
+      required: true
+      
+  - type: input
+    id: cve
+    attributes:
+      label: CVE ID (if applicable)
+      description: If this vulnerability has a CVE ID
+      placeholder: CVE-2024-XXXXX
+      
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Any references or similar vulnerabilities
+      placeholder: |
+        - Similar issue in another animation library
+        - OWASP guidance
+        - Security best practices documentation
+        
+  - type: input
+    id: contact
+    attributes:
+      label: Security Contact (Optional)
+      description: Preferred contact method for follow-up (will be kept confidential)
+      placeholder: security-researcher@example.com

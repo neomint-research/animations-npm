@@ -1,0 +1,147 @@
+name: Feature Request
+description: Suggest an idea or new feature for animations-npm
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to @neomint/animations! We appreciate your ideas.
+        
+  - type: checkboxes
+    id: existing-issue
+    attributes:
+      label: Is there an existing issue for this?
+      description: Please search to see if an issue already exists for the feature you're requesting
+      options:
+        - label: I have searched the existing issues
+          required: true
+          
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: |
+        I'm always frustrated when...
+        
+        Example: I'm frustrated when trying to create complex particle animations because there's no built-in particle system
+    validations:
+      required: true
+      
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like
+      placeholder: |
+        A clear and concise description of what you want to happen.
+        
+        Example: Add a ParticleSystem component that supports customizable particle behaviors, emitters, and physics
+    validations:
+      required: true
+      
+  - type: dropdown
+    id: feature-type
+    attributes:
+      label: Feature Type
+      description: What type of feature are you requesting?
+      options:
+        - New Animation Component
+        - Performance Optimization
+        - React Hook Enhancement
+        - Accessibility Feature
+        - Theme/Styling Option
+        - Browser Compatibility
+        - Documentation Improvement
+        - Other
+    validations:
+      required: true
+      
+  - type: textarea
+    id: use-cases
+    attributes:
+      label: Use Cases
+      description: Describe specific use cases for this feature
+      placeholder: |
+        1. Creating snow/rain effects in weather dashboards
+        2. Visualizing data flows in network diagrams
+        3. Building interactive particle-based transitions
+        4. Enhancing user engagement with dynamic backgrounds
+        
+  - type: textarea
+    id: api-proposal
+    attributes:
+      label: API Proposal
+      description: If applicable, provide a proposed API design
+      render: jsx
+      placeholder: |
+        ```jsx
+        import { ParticleSystem } from '@neomint/animations';
+        
+        <ParticleSystem
+          emitters={[
+            {
+              position: { x: 0.5, y: 0 },
+              rate: 100,
+              particle: {
+                life: 2000,
+                velocity: { x: 0, y: 1 },
+                size: { start: 10, end: 0 }
+              }
+            }
+          ]}
+          physics={{
+            gravity: { x: 0, y: 0.5 },
+            wind: { x: 0.1, y: 0 }
+          }}
+          performance={{
+            maxParticles: 1000,
+            targetFPS: 60
+          }}
+        />
+        ```
+        
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered
+      placeholder: |
+        - Using external particle libraries (but they don't integrate well with React)
+        - Creating custom Canvas animations (but this requires too much boilerplate)
+        - Using CSS animations (but they're too limited for complex effects)
+        
+  - type: textarea
+    id: performance-impact
+    attributes:
+      label: Performance Considerations
+      description: How might this feature impact performance?
+      placeholder: |
+        - Expected memory usage
+        - CPU/GPU requirements
+        - Impact on frame rates
+        - Mobile device considerations
+        
+  - type: dropdown
+    id: breaking-change
+    attributes:
+      label: Would this be a breaking change?
+      description: Would implementing this feature require breaking changes to the existing API?
+      options:
+        - "No"
+        - "Yes"
+        - "Not sure"
+    validations:
+      required: true
+      
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context, mockups, or examples about the feature request
+      placeholder: |
+        - Links to similar features in other libraries
+        - Design mockups or prototypes
+        - Performance benchmarks
+        - Browser compatibility requirements

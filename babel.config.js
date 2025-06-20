@@ -2,8 +2,8 @@ module.exports = {
   presets: [
     ['@babel/preset-env', {
       targets: {
-        node: '14',
-        browsers: ['> 1%', 'last 2 versions']
+        node: '16',
+        browsers: ['> 0.5%', 'last 2 versions', 'not dead']
       },
       modules: process.env.NODE_ENV === 'test' ? 'auto' : false
     }],
