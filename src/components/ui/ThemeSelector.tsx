@@ -7,7 +7,7 @@
  * @author NEOMINT Research
  */
 
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { useNetworkContext } from '../context/NetworkContext';
 import { useNetworkTheme } from '../hooks/useNetworkTheme';
 import { ThemePreset } from '../types';
@@ -19,7 +19,7 @@ interface ThemeSelectorProps {
   style?: React.CSSProperties;
 }
 
-export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
+const ThemeSelectorComponent: React.FC<ThemeSelectorProps> = ({
   position = 'top-left',
   showPreview = true,
   className = '',
@@ -29,15 +29,15 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   const { currentTheme, availablePresets, setPreset } = useNetworkTheme({
     theme: theme
   });
-  
-  const positionStyles: Record<string, React.CSSProperties> = {
+
+  const positionStyles = useMemo(() => ({
     'top-left': { top: 10, left: 10 },
     'top-right': { top: 10, right: 10 },
     'bottom-left': { bottom: 10, left: 10 },
     'bottom-right': { bottom: 10, right: 10 }
-  };
-  
-  const containerStyle: React.CSSProperties = {
+  }), []);
+
+  const containerStyle = useMemo((): React.CSSProperties => ({
     position: 'absolute',
     ...positionStyles[position],
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -46,7 +46,11 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     fontSize: '14px',
     zIndex: 1000,
     ...style
-  };
+  }), [position, positionStyles, style]);
+
+  const handleThemeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    setPreset(e.target.value as ThemePreset);
+  }, [setPreset]);
   
   return (
     <div className={`theme-selector ${className}`} style={containerStyle}>
@@ -56,7 +60,7 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
       <select
         id="theme-select"
         value={currentTheme.name || 'default'}
-        onChange={(e) => setPreset(e.target.value as ThemePreset)}
+        onChange={handleThemeChange}
         style={{ padding: '4px', borderRadius: '2px' }}
       >
         {availablePresets.map((preset) => (
@@ -100,3 +104,6 @@ export const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     </div>
   );
 };
+
+// Memoize for performance optimization
+export const ThemeSelector = memo(ThemeSelectorComponent);

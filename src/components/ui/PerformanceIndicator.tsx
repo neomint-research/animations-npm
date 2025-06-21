@@ -8,7 +8,7 @@
  * @author NEOMINT Research
  */
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { useNetworkContext } from '../context/NetworkContext';
 
 interface PerformanceIndicatorProps {
@@ -21,7 +21,7 @@ interface PerformanceIndicatorProps {
   style?: React.CSSProperties;
 }
 
-export const PerformanceIndicator: React.FC<PerformanceIndicatorProps> = ({
+const PerformanceIndicatorComponent: React.FC<PerformanceIndicatorProps> = ({
   position = 'top-right',
   showFPS = true,
   showNodeCount = true,
@@ -31,15 +31,15 @@ export const PerformanceIndicator: React.FC<PerformanceIndicatorProps> = ({
   style = {}
 }) => {
   const { metrics } = useNetworkContext();
-  
-  const positionStyles: Record<string, React.CSSProperties> = {
+
+  const positionStyles = useMemo(() => ({
     'top-left': { top: 10, left: 10 },
     'top-right': { top: 10, right: 10 },
     'bottom-left': { bottom: 10, left: 10 },
     'bottom-right': { bottom: 10, right: 10 }
-  };
-  
-  const containerStyle: React.CSSProperties = {
+  }), []);
+
+  const containerStyle = useMemo((): React.CSSProperties => ({
     position: 'absolute',
     ...positionStyles[position],
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -50,8 +50,8 @@ export const PerformanceIndicator: React.FC<PerformanceIndicatorProps> = ({
     fontFamily: 'monospace',
     zIndex: 1000,
     ...style
-  };
-  
+  }), [position, positionStyles, style]);
+
   return (
     <div className={`performance-indicator ${className}`} style={containerStyle}>
       {showFPS && <div>FPS: {metrics.fps}</div>}
@@ -61,3 +61,6 @@ export const PerformanceIndicator: React.FC<PerformanceIndicatorProps> = ({
     </div>
   );
 };
+
+// Memoize for performance optimization
+export const PerformanceIndicator = memo(PerformanceIndicatorComponent);

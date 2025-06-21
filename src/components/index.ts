@@ -29,12 +29,33 @@ export { NetworkProvider, useNetworkContext } from './context/NetworkContext';
 export { ThemeProvider, useThemeContext } from './context/ThemeContext';
 export { PerformanceProvider, usePerformanceContext } from './context/PerformanceContext';
 
+// Split Context Architecture (New)
+export { DataProvider, useDataContext } from './context/DataContext';
+export { InteractionProvider, useInteractionContext } from './context/InteractionContext';
+
+// Combined Providers
+export {
+  NetworkProviders,
+  HighPerformanceNetworkProviders,
+  SimpleNetworkProviders,
+  DebugNetworkProviders,
+  useNetworkProviderConfig
+} from './context/NetworkProviders';
+
 // Hooks
 export { useNetworkAnimation } from './hooks/useNetworkAnimation';
 export { useNetworkInteraction } from './hooks/useNetworkInteraction';
 export { useNetworkPerformance } from './hooks/useNetworkPerformance';
 export { useNetworkTheme } from './hooks/useNetworkTheme';
 export { useNetworkAccessibility } from './hooks/useNetworkAccessibility';
+
+// Standardized Hook Utilities
+export {
+  useStandardizedHook,
+  useHookPerformance,
+  useHookErrorBoundary,
+  useHookCleanup
+} from './hooks/useStandardizedHook';
 
 // Types
 export type {

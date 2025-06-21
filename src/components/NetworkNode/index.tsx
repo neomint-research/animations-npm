@@ -8,7 +8,7 @@
  * @author NEOMINT Research
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { NetworkNodeData } from '../types';
 
 interface NetworkNodeProps {
@@ -19,7 +19,7 @@ interface NetworkNodeProps {
   onHover?: (node: NetworkNodeData | null) => void;
 }
 
-export const NetworkNode: React.FC<NetworkNodeProps> = ({
+const NetworkNodeComponent: React.FC<NetworkNodeProps> = ({
   node,
   isSelected = false,
   isHovered = false,
@@ -43,3 +43,15 @@ export const NetworkNode: React.FC<NetworkNodeProps> = ({
     />
   );
 };
+
+// Memoize for performance optimization
+export const NetworkNode = memo(NetworkNodeComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.node.x === nextProps.node.x &&
+    prevProps.node.y === nextProps.node.y &&
+    prevProps.node.radius === nextProps.node.radius &&
+    prevProps.node.color === nextProps.node.color &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isHovered === nextProps.isHovered
+  );
+});

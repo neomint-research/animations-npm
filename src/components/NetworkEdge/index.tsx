@@ -8,7 +8,7 @@
  * @author NEOMINT Research
  */
 
-import React from 'react';
+import React, { memo } from 'react';
 import { NetworkEdgeData, NetworkNodeData } from '../types';
 
 interface NetworkEdgeProps {
@@ -21,7 +21,7 @@ interface NetworkEdgeProps {
   onHover?: (edge: NetworkEdgeData | null) => void;
 }
 
-export const NetworkEdge: React.FC<NetworkEdgeProps> = ({
+const NetworkEdgeComponent: React.FC<NetworkEdgeProps> = ({
   edge,
   sourceNode,
   targetNode,
@@ -49,3 +49,17 @@ export const NetworkEdge: React.FC<NetworkEdgeProps> = ({
     />
   );
 };
+
+// Memoize for performance optimization
+export const NetworkEdge = memo(NetworkEdgeComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.sourceNode.x === nextProps.sourceNode.x &&
+    prevProps.sourceNode.y === nextProps.sourceNode.y &&
+    prevProps.targetNode.x === nextProps.targetNode.x &&
+    prevProps.targetNode.y === nextProps.targetNode.y &&
+    prevProps.edge.color === nextProps.edge.color &&
+    prevProps.edge.width === nextProps.edge.width &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isHovered === nextProps.isHovered
+  );
+});

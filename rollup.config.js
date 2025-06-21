@@ -9,14 +9,32 @@ const globals = { react: 'React', 'react-dom': 'ReactDOM', 'iconoir-react': 'Ico
 const isAnalyze = process.env.ANALYZE === 'true';
 
 const basePlugins = [
-  resolve({ extensions: ['.js', '.jsx', '.ts', '.tsx'] }),
-  commonjs(),
+  resolve({
+    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    preferBuiltins: false,
+    browser: true
+  }),
+  commonjs({
+    include: 'node_modules/**'
+  }),
   babel({
     babelHelpers: 'bundled',
     exclude: 'node_modules/**',
-    presets: [['@babel/preset-env', { modules: false }], ['@babel/preset-react', { runtime: 'automatic' }]]
+    presets: [
+      ['@babel/preset-env', { modules: false, targets: { browsers: ['> 1%', 'last 2 versions'] } }],
+      ['@babel/preset-react', { runtime: 'automatic' }]
+    ]
   }),
-  terser()
+  terser({
+    compress: {
+      drop_console: true,
+      drop_debugger: true,
+      pure_funcs: ['console.log', 'console.warn']
+    },
+    mangle: {
+      reserved: ['DataNetwork', 'NetworkCanvas', 'NetworkNode', 'NetworkEdge']
+    }
+  })
 ];
 
 export default [
