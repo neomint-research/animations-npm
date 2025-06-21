@@ -1,13 +1,19 @@
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import babel from '@rollup/plugin-babel';
-import { terser } from 'rollup-plugin-terser';
+import typescript from '@rollup/plugin-typescript';
+import terser from '@rollup/plugin-terser';
+import { visualizer } from 'rollup-plugin-visualizer';
 
-const external = ['react', 'react-dom'];
+const external = ['react', 'react-dom', 'iconoir-react', 'prop-types'];
 const globals = {
   react: 'React',
-  'react-dom': 'ReactDOM'
+  'react-dom': 'ReactDOM',
+  'iconoir-react': 'IconoirReact',
+  'prop-types': 'PropTypes'
 };
+
+const isAnalyze = process.env.ANALYZE === 'true';
 
 export default [
   // ES Module build
@@ -21,7 +27,7 @@ export default [
     },
     plugins: [
       resolve({
-        extensions: ['.js', '.jsx']
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
       }),
       commonjs(),
       babel({
@@ -32,22 +38,26 @@ export default [
           ['@babel/preset-react', { runtime: 'automatic' }]
         ]
       }),
-      terser()
-    ]
+      terser(),
+      isAnalyze && visualizer({
+        filename: 'dist/bundle-analysis.html',
+        open: true
+      })
+    ].filter(Boolean)
   },
   // CommonJS build
   {
     input: 'src/index.js',
     external,
     output: {
-      file: 'dist/index.js',
+      file: 'dist/index.cjs.js',
       format: 'cjs',
       sourcemap: true,
       globals
     },
     plugins: [
       resolve({
-        extensions: ['.js', '.jsx']
+        extensions: ['.js', '.jsx', '.ts', '.tsx']
       }),
       commonjs(),
       babel({

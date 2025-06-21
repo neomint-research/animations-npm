@@ -12,16 +12,17 @@ import React, { forwardRef, useEffect, useImperativeHandle, useRef } from 'react
 import { NetworkProvider } from '../context/NetworkContext';
 import { NetworkCanvas } from '../NetworkCanvas';
 import { NetworkContainer } from '../layout/NetworkContainer';
+import { NetworkErrorBoundary } from '../ErrorBoundary';
 import { useNetworkAnimation } from '../hooks/useNetworkAnimation';
 import { useNetworkPerformance } from '../hooks/useNetworkPerformance';
 import { useNetworkAccessibility } from '../hooks/useNetworkAccessibility';
 import { useNetworkTheme } from '../hooks/useNetworkTheme';
-import { 
-  NetworkProps, 
-  NetworkNodeData, 
+import {
+  NetworkProps,
+  NetworkNodeData,
   NetworkEdgeData,
   NetworkTheme,
-  ThemePreset 
+  ThemePreset
 } from '../types';
 import { THEME_PRESETS, NETWORK_DEFAULTS } from '../constants';
 
@@ -305,17 +306,23 @@ export const DataNetwork = forwardRef<DataNetworkRef, NetworkProps>((props, ref)
   }, [theme, preset]);
   
   return (
-    <NetworkProvider
-      initialNodes={nodes}
-      initialEdges={edges}
-      initialTheme={resolvedTheme}
-      initialPerformance={performance}
-      initialAccessibility={accessibility}
-      initialAnimation={animation}
-      initialInteraction={interaction}
+    <NetworkErrorBoundary
+      onError={props.onError}
+      resetKeys={[JSON.stringify(nodes), JSON.stringify(edges), JSON.stringify(resolvedTheme)]}
+      resetOnPropsChange={true}
     >
-      <DataNetworkInner ref={ref} {...props} />
-    </NetworkProvider>
+      <NetworkProvider
+        initialNodes={nodes}
+        initialEdges={edges}
+        initialTheme={resolvedTheme}
+        initialPerformance={performance}
+        initialAccessibility={accessibility}
+        initialAnimation={animation}
+        initialInteraction={interaction}
+      >
+        <DataNetworkInner ref={ref} {...props} />
+      </NetworkProvider>
+    </NetworkErrorBoundary>
   );
 });
 

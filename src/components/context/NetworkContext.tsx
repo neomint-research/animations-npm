@@ -8,7 +8,7 @@
  * @author NEOMINT Research
  */
 
-import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useMemo, ReactNode } from 'react';
 import {
   NetworkContextValue,
   NetworkNodeData,
@@ -239,7 +239,7 @@ export function NetworkProvider({
   // Context Value
   // ============================================================================
 
-  const contextValue: NetworkContextValue = {
+  const contextValue: NetworkContextValue = useMemo(() => ({
     ...state,
     updateNodes,
     updateEdges,
@@ -250,7 +250,18 @@ export function NetworkProvider({
     updateAnimation,
     updateInteraction,
     updateMetrics
-  };
+  }), [
+    state,
+    updateNodes,
+    updateEdges,
+    updateDimensions,
+    updateTheme,
+    updatePerformance,
+    updateAccessibility,
+    updateAnimation,
+    updateInteraction,
+    updateMetrics
+  ]);
 
   return (
     <NetworkContext.Provider value={contextValue}>

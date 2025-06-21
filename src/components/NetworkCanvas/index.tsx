@@ -8,7 +8,7 @@
  * @author NEOMINT Research
  */
 
-import React, { forwardRef, useRef, useEffect, useCallback } from 'react';
+import React, { forwardRef, useRef, useEffect, useCallback, memo } from 'react';
 import { useNetworkContext } from '../context/NetworkContext';
 import {
   NetworkNodeData,
@@ -56,7 +56,7 @@ interface NetworkCanvasProps {
 // Component Implementation
 // ============================================================================
 
-export const NetworkCanvas = forwardRef<HTMLCanvasElement, NetworkCanvasProps>(({
+const NetworkCanvasComponent = forwardRef<HTMLCanvasElement, NetworkCanvasProps>(({
   nodes,
   edges,
   theme,
@@ -265,19 +265,24 @@ export const NetworkCanvas = forwardRef<HTMLCanvasElement, NetworkCanvasProps>((
   
   const drawGeneratedConnections = useCallback((ctx: CanvasRenderingContext2D) => {
     const effectiveLineColor = lineColor || theme.edgeColor;
-    
+
     ctx.strokeStyle = effectiveLineColor;
     ctx.lineWidth = lineWidth;
-    
+
+    // Use squared distance to avoid expensive Math.sqrt
+    const connectionDistanceSquared = connectionDistance * connectionDistance;
+
     for (let i = 0; i < nodesRef.current.length; i++) {
       for (let j = i + 1; j < nodesRef.current.length; j++) {
         const nodeA = nodesRef.current[i];
         const nodeB = nodesRef.current[j];
-        const distance = Math.sqrt(
-          Math.pow(nodeA.x - nodeB.x, 2) + Math.pow(nodeA.y - nodeB.y, 2)
-        );
-        
-        if (distance < connectionDistance) {
+        const dx = nodeA.x - nodeB.x;
+        const dy = nodeA.y - nodeB.y;
+        const distanceSquared = dx * dx + dy * dy;
+
+        if (distanceSquared < connectionDistanceSquared) {
+          // Only calculate actual distance when needed for opacity
+          const distance = Math.sqrt(distanceSquared);
           const alpha = (1 - distance / connectionDistance) * opacity * 0.3;
           ctx.globalAlpha = alpha;
           ctx.beginPath();
@@ -287,7 +292,7 @@ export const NetworkCanvas = forwardRef<HTMLCanvasElement, NetworkCanvasProps>((
         }
       }
     }
-    
+
     ctx.globalAlpha = 1;
   }, [lineColor, theme, lineWidth, connectionDistance, opacity]);
   
@@ -347,4 +352,22 @@ export const NetworkCanvas = forwardRef<HTMLCanvasElement, NetworkCanvasProps>((
   );
 });
 
-NetworkCanvas.displayName = 'NetworkCanvas';
+NetworkCanvasComponent.displayName = 'NetworkCanvas';
+
+// Memoize the component to prevent unnecessary re-renders
+export const NetworkCanvas = memo(NetworkCanvasComponent, (prevProps, nextProps) => {
+  // Custom comparison for performance optimization
+  return (
+    prevProps.nodes === nextProps.nodes &&
+    prevProps.edges === nextProps.edges &&
+    prevProps.theme === nextProps.theme &&
+    prevProps.performance === nextProps.performance &&
+    prevProps.animation === nextProps.animation &&
+    prevProps.nodeColor === nextProps.nodeColor &&
+    prevProps.lineColor === nextProps.lineColor &&
+    prevProps.backgroundColor === nextProps.backgroundColor &&
+    prevProps.opacity === nextProps.opacity &&
+    prevProps.lineWidth === nextProps.lineWidth &&
+    prevProps.connectionDistance === nextProps.connectionDistance
+  );
+});

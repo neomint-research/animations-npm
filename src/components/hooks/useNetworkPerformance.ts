@@ -10,11 +10,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNetworkContext } from '../context/NetworkContext';
-import { 
-  NetworkPerformanceConfig, 
-  PerformanceMetrics, 
-  DeviceCapabilities 
+import {
+  NetworkPerformanceConfig,
+  PerformanceMetrics,
+  DeviceCapabilities
 } from '../types';
+import { PERFORMANCE_CONSTANTS } from '../constants';
 
 // ============================================================================
 // Hook Configuration
@@ -90,7 +91,7 @@ export function useNetworkPerformance({
   useEffect(() => {
     // Store performance history (last 60 frames)
     performanceHistoryRef.current.push(metrics);
-    if (performanceHistoryRef.current.length > 60) {
+    if (performanceHistoryRef.current.length > PERFORMANCE_CONSTANTS.MAX_PERFORMANCE_HISTORY) {
       performanceHistoryRef.current.shift();
     }
     
@@ -98,13 +99,13 @@ export function useNetworkPerformance({
     onPerformanceChange?.(metrics);
     
     // Auto-optimize if performance is poor and adaptive quality is enabled
-    if (config.adaptiveQuality && Date.now() - lastOptimizationRef.current > 5000) {
-      const avgFPS = performanceHistoryRef.current.reduce((sum, m) => sum + m.fps, 0) / 
+    if (config.adaptiveQuality && Date.now() - lastOptimizationRef.current > PERFORMANCE_CONSTANTS.OPTIMIZATION_COOLDOWN_MS) {
+      const avgFPS = performanceHistoryRef.current.reduce((sum, m) => sum + m.fps, 0) /
                     performanceHistoryRef.current.length;
-      
-      const targetFPS = config.maxFPS || 60;
-      
-      if (avgFPS < targetFPS * 0.7) {
+
+      const targetFPS = config.maxFPS || PERFORMANCE_CONSTANTS.DEFAULT_MAX_FPS;
+
+      if (avgFPS < targetFPS * PERFORMANCE_CONSTANTS.FPS_THRESHOLD_RATIO) {
         optimizeForLowPerformance();
         lastOptimizationRef.current = Date.now();
       }
@@ -269,11 +270,15 @@ export function useNetworkPerformance({
   // ============================================================================
   // Memory Usage Monitoring (if available)
   // ============================================================================
-  
+
   useEffect(() => {
     if (typeof window === 'undefined' || !('performance' in window)) return;
-    
+
+    let cancelled = false;
+
     const checkMemoryUsage = () => {
+      if (cancelled) return;
+
       const perf = window.performance as any;
       if (perf.memory) {
         const memoryInfo = {
@@ -281,18 +286,21 @@ export function useNetworkPerformance({
           total: perf.memory.totalJSHeapSize,
           limit: perf.memory.jsHeapSizeLimit
         };
-        
+
         // If memory usage is high, suggest optimization
         const usagePercent = (memoryInfo.used / memoryInfo.limit) * 100;
-        if (usagePercent > 80) {
+        if (usagePercent > PERFORMANCE_CONSTANTS.MEMORY_WARNING_THRESHOLD * 100) {
           console.warn('[NetworkPerformance] High memory usage detected:', usagePercent.toFixed(1) + '%');
         }
       }
     };
-    
-    const interval = setInterval(checkMemoryUsage, 10000); // Check every 10 seconds
-    
-    return () => clearInterval(interval);
+
+    const interval = setInterval(checkMemoryUsage, PERFORMANCE_CONSTANTS.MEMORY_CHECK_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
   
   // ============================================================================

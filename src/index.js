@@ -29,50 +29,72 @@ export const utils = legacyUtils;
 // ============================================================================
 
 // Modern TypeScript components (available alongside legacy)
-export {
-  DataNetwork as ModernDataNetwork,
+// Note: These will be available after TypeScript compilation
+let ModernComponents = {};
+try {
+  // Try to import compiled TypeScript components
+  const components = require('../dist/ts/components/index.js');
+  ModernComponents = {
+    ModernDataNetwork: components.DataNetwork,
+    NetworkCanvas: components.NetworkCanvas,
+    NetworkNode: components.NetworkNode,
+    NetworkEdge: components.NetworkEdge,
+    NetworkErrorBoundary: components.NetworkErrorBoundary,
+    withErrorBoundary: components.withErrorBoundary,
+    useErrorHandler: components.useErrorHandler
+  };
+} catch (error) {
+  // TypeScript components not available (development mode)
+  console.warn('[neomint/animations] Modern TypeScript components not available. Run `npm run build:ts` first.');
+}
+
+// Export modern components if available
+export const {
+  ModernDataNetwork,
   NetworkCanvas,
   NetworkNode,
   NetworkEdge,
-  NetworkContainer,
-  ResponsiveWrapper,
-  PerformanceIndicator,
-  ThemeSelector,
-  AccessibilityControls
-} from './components';
-
-// Context providers and hooks
-export {
-  NetworkProvider,
-  useNetworkContext,
-  ThemeProvider,
-  useThemeContext,
-  PerformanceProvider,
-  usePerformanceContext,
-  useNetworkAnimation,
-  useNetworkInteraction,
-  useNetworkPerformance,
-  useNetworkTheme,
-  useNetworkAccessibility
-} from './components';
+  NetworkErrorBoundary,
+  withErrorBoundary,
+  useErrorHandler
+} = ModernComponents;
 
 // TypeScript types are available through separate .d.ts files
 // Import them in TypeScript projects with:
 // import type { NetworkProps, NetworkNodeData, ... } from '@neomint/animations';
 
-// Constants and presets
-export {
+// Constants and presets (try to import from compiled TypeScript)
+let ModernConstants = {};
+try {
+  const constants = require('../dist/ts/components/constants/index.js');
+  ModernConstants = {
+    NETWORK_DEFAULTS: constants.NETWORK_DEFAULTS,
+    THEME_PRESETS: constants.THEME_PRESETS,
+    PERFORMANCE_TIERS: constants.PERFORMANCE_TIERS,
+    PERFORMANCE_CONSTANTS: constants.PERFORMANCE_CONSTANTS
+  };
+} catch (error) {
+  // Use fallback constants
+  ModernConstants = {
+    NETWORK_DEFAULTS: {},
+    THEME_PRESETS: {},
+    PERFORMANCE_TIERS: {},
+    PERFORMANCE_CONSTANTS: {}
+  };
+}
+
+export const {
   NETWORK_DEFAULTS,
   THEME_PRESETS,
-  PERFORMANCE_TIERS
-} from './components/constants';
+  PERFORMANCE_TIERS,
+  PERFORMANCE_CONSTANTS
+} = ModernConstants;
 
 // ============================================================================
 // Theme System (Enhanced)
 // ============================================================================
 
-// Import modern theme presets
-import { THEME_PRESETS } from './components/constants';
+// Use modern theme presets if available
 
 // Export enhanced themes object with legacy themes and modern theme presets
 export const themes = {
@@ -87,8 +109,8 @@ export const themes = {
     edgeColor: '#bdc3c7',
     backgroundColor: '#2c3e50'
   },
-  // Modern theme presets
-  ...THEME_PRESETS
+  // Modern theme presets (if available)
+  ...(THEME_PRESETS || {})
 };
 
 // ============================================================================

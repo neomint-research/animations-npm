@@ -158,7 +158,7 @@ describe('Modern Components Structure', () => {
     const content = fs.readFileSync(mainIndex, 'utf8');
 
     // Modern components should now be activated
-    expect(content).toContain('DataNetwork as ModernDataNetwork');
+    expect(content).toContain('ModernDataNetwork: components.DataNetwork');
     expect(content).toContain('NetworkCanvas');
     expect(content).toContain('export default LegacyDataNetwork');
 
@@ -167,6 +167,6 @@ describe('Modern Components Structure', () => {
     expect(content).toContain('export const utils = legacyUtils');
 
     // Theme presets should be activated
-    expect(content).toContain('...THEME_PRESETS');
+    expect(content).toContain('...(THEME_PRESETS || {})');
   });
 });

@@ -336,3 +336,36 @@ export const DEVICE_THRESHOLDS = {
     minGPUMemory: 2 // GB
   }
 } as const;
+
+// ============================================================================
+// Performance Constants
+// ============================================================================
+
+export const PERFORMANCE_CONSTANTS = {
+  // FPS and Animation
+  DEFAULT_MAX_FPS: 60,
+  FPS_THRESHOLD_RATIO: 0.7,
+  OPTIMIZATION_COOLDOWN_MS: 5000,
+  TARGET_FRAME_TIME_60FPS: 1000 / 60,
+
+  // Memory Monitoring
+  MEMORY_CHECK_INTERVAL_MS: 10000,
+  MEMORY_WARNING_THRESHOLD: 0.8, // 80% of heap limit
+
+  // Performance History
+  MAX_PERFORMANCE_HISTORY: 60, // Keep 60 frames of history
+
+  // Animation Cycles
+  ANIMATION_CYCLE_FRAMES: 60 * 5, // 5 seconds at 60fps
+
+  // Connection and Rendering
+  DEFAULT_CONNECTION_DISTANCE: 120,
+  DEFAULT_OPACITY: 1.0,
+  CONNECTION_OPACITY_FACTOR: 0.3,
+  DEFAULT_LINE_WIDTH: 1,
+  DEFAULT_NODE_RADIUS: 4,
+
+  // Rate Limiting
+  THEME_DETECTION_RATE_LIMIT_MS: 100,
+  MUTATION_OBSERVER_DEBOUNCE_MS: 50
+} as const;

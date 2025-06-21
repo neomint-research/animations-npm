@@ -14,6 +14,7 @@ export { DataNetwork } from './DataNetwork';
 export { NetworkCanvas } from './NetworkCanvas';
 export { NetworkNode } from './NetworkNode';
 export { NetworkEdge } from './NetworkEdge';
+export { NetworkErrorBoundary, withErrorBoundary, useErrorHandler } from './ErrorBoundary';
 
 // Layout Components
 export { NetworkContainer, ResponsiveWrapper } from './layout/NetworkContainer';

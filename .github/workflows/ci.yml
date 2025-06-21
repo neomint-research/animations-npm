@@ -122,6 +122,14 @@ jobs:
             echo "Error: ESM build not found!"
             exit 1
           fi
+          if [ ! -d "dist/types" ]; then
+            echo "Error: TypeScript declarations not found!"
+            exit 1
+          fi
+          if [ ! -d "dist/ts" ]; then
+            echo "Error: TypeScript compiled output not found!"
+            exit 1
+          fi
           echo "Build verification successful ✓"
 
       - name: Upload build artifacts

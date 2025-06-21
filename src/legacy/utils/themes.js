@@ -332,41 +332,88 @@ export const themeTokens = {
   }
 };
 
+// CSS Variable Sanitization
+const CSS_VALUE_PATTERNS = {
+  COLOR: /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$|^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)$/,
+  SAFE_STRING: /^[a-zA-Z0-9\s\-_]+$/,
+  GRADIENT: /^linear-gradient\([^)]+\)$/
+};
+
+const sanitizeCSSValue = (value, type = 'SAFE_STRING') => {
+  if (!value || typeof value !== 'string') return '';
+
+  // Remove potentially dangerous characters and patterns
+  const cleaned = value
+    .replace(/[<>'"]/g, '') // Remove HTML/JS injection chars
+    .replace(/url\s*\(/gi, '') // Remove URL functions
+    .replace(/expression\s*\(/gi, '') // Remove IE expressions
+    .replace(/javascript:/gi, '') // Remove JS protocols
+    .replace(/data:/gi, '') // Remove data URLs
+    .trim();
+
+  // Validate against pattern if specified
+  if (type !== 'SAFE_STRING' && CSS_VALUE_PATTERNS[type]) {
+    return CSS_VALUE_PATTERNS[type].test(cleaned) ? cleaned : '';
+  }
+
+  return cleaned;
+};
+
 // CSS Variable Detection and Auto-Theme Generation
 export const detectCSSVariables = () => {
   const root = document.documentElement;
   const computedStyle = getComputedStyle(root);
-  
+
   const cssVars = {
     // Primary colors
-    primary: computedStyle.getPropertyValue('--color-primary').trim(),
-    primaryRgb: computedStyle.getPropertyValue('--color-primary-rgb').trim(),
-    secondary: computedStyle.getPropertyValue('--color-secondary').trim(),
-    
+    primary: sanitizeCSSValue(computedStyle.getPropertyValue('--color-primary').trim(), 'COLOR'),
+    primaryRgb: sanitizeCSSValue(computedStyle.getPropertyValue('--color-primary-rgb').trim()),
+    secondary: sanitizeCSSValue(computedStyle.getPropertyValue('--color-secondary').trim(), 'COLOR'),
+
     // Background colors
-    background: computedStyle.getPropertyValue('--color-background').trim(),
-    surface: computedStyle.getPropertyValue('--color-surface').trim(),
-    
+    background: sanitizeCSSValue(computedStyle.getPropertyValue('--color-background').trim(), 'COLOR'),
+    surface: sanitizeCSSValue(computedStyle.getPropertyValue('--color-surface').trim(), 'COLOR'),
+
     // Text colors
-    text: computedStyle.getPropertyValue('--color-text').trim(),
-    textMuted: computedStyle.getPropertyValue('--color-text-muted').trim(),
-    
+    text: sanitizeCSSValue(computedStyle.getPropertyValue('--color-text').trim(), 'COLOR'),
+    textMuted: sanitizeCSSValue(computedStyle.getPropertyValue('--color-text-muted').trim(), 'COLOR'),
+
     // Animation-specific variables
-    nodeColor: computedStyle.getPropertyValue('--animation-node-color').trim(),
-    lineColor: computedStyle.getPropertyValue('--animation-line-color').trim(),
-    animationBg: computedStyle.getPropertyValue('--animation-background').trim(),
-    
+    nodeColor: sanitizeCSSValue(computedStyle.getPropertyValue('--animation-node-color').trim(), 'COLOR'),
+    lineColor: sanitizeCSSValue(computedStyle.getPropertyValue('--animation-line-color').trim(), 'COLOR'),
+    animationBg: sanitizeCSSValue(computedStyle.getPropertyValue('--animation-background').trim()),
+
     // Theme indicators
-    theme: computedStyle.getPropertyValue('--theme').trim(),
-    colorScheme: computedStyle.getPropertyValue('color-scheme').trim()
+    theme: sanitizeCSSValue(computedStyle.getPropertyValue('--theme').trim()),
+    colorScheme: sanitizeCSSValue(computedStyle.getPropertyValue('color-scheme').trim())
   };
-  
+
   // Filter out empty values
   const availableVars = Object.entries(cssVars)
     .filter(([key, value]) => value && value !== '')
     .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
-    
+
   return availableVars;
+};
+
+// Safe object merging to prevent prototype pollution
+const safeObjectMerge = (target, source) => {
+  const result = { ...target };
+
+  for (const [key, value] of Object.entries(source)) {
+    // Skip dangerous keys
+    if (['__proto__', 'constructor', 'prototype'].includes(key)) {
+      continue;
+    }
+
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      result[key] = safeObjectMerge(result[key] || {}, value);
+    } else {
+      result[key] = value;
+    }
+  }
+
+  return result;
 };
 
 export const generateAutoTheme = (cssVars = {}) => {
@@ -374,17 +421,17 @@ export const generateAutoTheme = (cssVars = {}) => {
   if (Object.keys(cssVars).length === 0) {
     return null;
   }
-  
-  // Build theme from available CSS variables
+
+  // Build theme from available CSS variables using safe merging
   const autoTheme = {};
-  
+
   // Primary node color
   if (cssVars.nodeColor) {
     autoTheme.nodeColor = cssVars.nodeColor;
   } else if (cssVars.primary) {
     autoTheme.nodeColor = cssVars.primary;
   }
-  
+
   // Line color with opacity
   if (cssVars.lineColor) {
     autoTheme.lineColor = cssVars.lineColor;
@@ -395,25 +442,25 @@ export const generateAutoTheme = (cssVars = {}) => {
     // Convert hex to rgba if possible, fallback to preset
     autoTheme.lineColor = convertHexToRgba(cssVars.primary, 0.2) || 'rgba(0, 149, 143, 0.2)';
   }
-  
+
   // Background
   if (cssVars.animationBg) {
     autoTheme.backgroundColor = cssVars.animationBg;
   } else if (cssVars.background) {
     autoTheme.backgroundColor = cssVars.background;
   }
-  
+
   // Detect dark theme
-  const isDarkTheme = cssVars.theme === 'dark' || 
+  const isDarkTheme = cssVars.theme === 'dark' ||
                      cssVars.colorScheme === 'dark' ||
                      cssVars.background === '#1a1a1a' ||
                      cssVars.background === '#000000';
-  
+
   // Auto-adjust for dark themes
   if (isDarkTheme && !cssVars.nodeColor) {
     autoTheme.nodeColor = themeTokens.colors.primary; // Mint green for dark backgrounds
   }
-  
+
   return autoTheme;
 };
 
@@ -453,43 +500,64 @@ export const detectThemeMode = () => {
   return 'light';
 };
 
+// Performance constants (inline to avoid import issues in legacy code)
+const PERFORMANCE_CONSTANTS = {
+  THEME_DETECTION_RATE_LIMIT_MS: 100,
+  MUTATION_OBSERVER_DEBOUNCE_MS: 50
+};
+
+// Debounce utility for performance
+const debounce = (func, wait) => {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 // Create CSS variable listener for theme changes
 export const createThemeListener = (callback) => {
   let currentVars = detectCSSVariables();
-  
-  const observer = new MutationObserver(() => {
+  let lastCall = 0;
+  const RATE_LIMIT = PERFORMANCE_CONSTANTS.THEME_DETECTION_RATE_LIMIT_MS;
+
+  const debouncedCallback = debounce((newVars) => {
+    const now = Date.now();
+    if (now - lastCall < RATE_LIMIT) return;
+
+    lastCall = now;
+    currentVars = newVars;
+    const autoTheme = generateAutoTheme(newVars);
+    const themeMode = detectThemeMode();
+    callback({ cssVars: newVars, autoTheme, themeMode });
+  }, PERFORMANCE_CONSTANTS.MUTATION_OBSERVER_DEBOUNCE_MS);
+
+  const handleChange = () => {
     const newVars = detectCSSVariables();
-    
+
     // Check if variables changed
     const hasChanged = JSON.stringify(currentVars) !== JSON.stringify(newVars);
-    
+
     if (hasChanged) {
-      currentVars = newVars;
-      const autoTheme = generateAutoTheme(newVars);
-      const themeMode = detectThemeMode();
-      callback({ cssVars: newVars, autoTheme, themeMode });
+      debouncedCallback(newVars);
     }
-  });
-  
+  };
+
+  const observer = new MutationObserver(handleChange);
+
   // Watch for attribute changes (class, style, data attributes)
   observer.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ['class', 'style', 'data-theme']
   });
-  
+
   // Also listen to CSS custom property changes via style updates
-  const styleObserver = new MutationObserver(() => {
-    const newVars = detectCSSVariables();
-    const hasChanged = JSON.stringify(currentVars) !== JSON.stringify(newVars);
-    
-    if (hasChanged) {
-      currentVars = newVars;
-      const autoTheme = generateAutoTheme(newVars);
-      const themeMode = detectThemeMode();
-      callback({ cssVars: newVars, autoTheme, themeMode });
-    }
-  });
-  
+  const styleObserver = new MutationObserver(handleChange);
+
   // Watch for style tag changes
   const head = document.head;
   if (head) {
@@ -498,7 +566,7 @@ export const createThemeListener = (callback) => {
       subtree: true
     });
   }
-  
+
   return () => {
     observer.disconnect();
     styleObserver.disconnect();
@@ -568,9 +636,10 @@ export const resolveThemeConfig = (preset = 'default', theme = 'auto', deviceCap
   
   // Handle custom theme objects
   if (typeof preset === 'object' && preset !== null) {
-    // Validate custom theme
+    // Validate custom theme and use safe merging
     if (validateTheme(preset)) {
-      return preset;
+      const baseTheme = getPresetConfig('default');
+      return safeObjectMerge(baseTheme, preset);
     }
     console.warn('Invalid custom theme provided, falling back to default');
   }

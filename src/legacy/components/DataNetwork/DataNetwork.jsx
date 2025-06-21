@@ -230,17 +230,19 @@ const DataNetwork = forwardRef((props, ref) => {
   // Enhanced animation loop with FPS limiting
   const animate = useCallback((currentTime) => {
     if (isAnimationDisabled || !isPlayingRef.current) return;
-    
+
     // FPS limiting
     if (lastFrameTimeRef.current) {
       const deltaTime = currentTime - lastFrameTimeRef.current;
       const targetFrameTime = 1000 / maxFPS;
-      
+
       if (deltaTime < targetFrameTime) {
-        animationRef.current = requestAnimationFrame(animate);
+        if (!isAnimationDisabled && isPlayingRef.current) {
+          animationRef.current = requestAnimationFrame(animate);
+        }
         return;
       }
-      
+
       // Update stats
       if (showStats || analytics) {
         statsRef.current.fps = Math.round(1000 / deltaTime);
@@ -430,10 +432,14 @@ const DataNetwork = forwardRef((props, ref) => {
     }
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      // Stop animation first
+      isPlayingRef.current = false;
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
+      // Then remove event listeners
+      window.removeEventListener('resize', handleResize);
     };
   }, [handleResize, animate, isAnimationDisabled, renderStatic, autoPlay, isPaused]);
   
