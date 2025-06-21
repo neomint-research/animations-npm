@@ -29,7 +29,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['javascript', 'python']
+        language: ['javascript']
 
     steps:
       - name: Checkout Repository
@@ -44,7 +44,7 @@ jobs:
           path: |
             ~/.cache/codeql
             /opt/hostedtoolcache/CodeQL
-          key: ${{ runner.os }}-codeql-${{ matrix.language }}-${{ hashFiles('**/*.js', '**/*.py', '**/*.ts') }}
+          key: ${{ runner.os }}-codeql-${{ matrix.language }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
             ${{ runner.os }}-codeql-${{ matrix.language }}-
             ${{ runner.os }}-codeql-

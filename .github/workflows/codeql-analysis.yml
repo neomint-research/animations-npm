@@ -2,7 +2,7 @@ name: "CodeQL Security Analysis"
 
 on:
   push:
-    branches: [ main, refactor/golden-repo-migration ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
   schedule:
@@ -26,6 +26,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript' ]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,15 +44,15 @@ jobs:
           path: |
             ~/.cache/codeql
             /opt/hostedtoolcache/CodeQL
-          key: ${{ runner.os }}-codeql-javascript-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          key: ${{ runner.os }}-codeql-${{ matrix.language }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           restore-keys: |
-            ${{ runner.os }}-codeql-javascript-
+            ${{ runner.os }}-codeql-${{ matrix.language }}-
             ${{ runner.os }}-codeql-
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript
+          languages: ${{ matrix.language }}
           queries: security-extended,security-and-quality
           config: |
             paths:
@@ -58,6 +63,7 @@ jobs:
               - dist
               - coverage
               - '**/*.min.js'
+              - '**/*.d.ts'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -68,11 +74,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project for analysis
-        run: npm run build:prod
+      - name: Build TypeScript for analysis
+        run: npm run build:ts
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: '/language:javascript'
+          category: '/language:${{ matrix.language }}'
           upload: true
