@@ -1,0 +1,57 @@
+# Code Ownership Rules for Golden Repo Template
+# This file defines who must review changes to specific files and directories
+#
+# NOTE: Replace team references with actual usernames or teams when using this template
+# Example: @username or @organization/team-name
+
+# Global ownership - all files require review by repository maintainers
+# * @your-organization/maintainers
+
+# Security-sensitive files require security team review
+# /.github/workflows/ @your-organization/security-team @your-organization/devops-team
+# /.github/CODEOWNERS @your-organization/security-team @your-organization/maintainers
+# /.github/dependabot.yml @your-organization/security-team
+# /security/ @your-organization/security-team
+
+# CI/CD and automation files require DevOps review
+# /.github/workflows/*.yml @your-organization/devops-team
+# /.github/actions/ @your-organization/devops-team
+# /scripts/ @your-organization/devops-team
+# /Dockerfile* @your-organization/devops-team
+# /docker-compose*.yml @your-organization/devops-team
+
+# Configuration files require careful review
+# /.prettierrc @your-organization/frontend-team @your-organization/maintainers
+# /.eslintrc* @your-organization/frontend-team
+# /pyproject.toml @your-organization/backend-team
+# /requirements*.txt @your-organization/backend-team
+# /package*.json @your-organization/frontend-team
+# /yarn.lock @your-organization/frontend-team
+# /Pipfile* @your-organization/backend-team
+
+# Documentation requires technical writing review
+# /README.md @your-organization/docs-team @your-organization/maintainers
+# /docs/ @your-organization/docs-team
+# /*.md @your-organization/docs-team
+
+# Source code by language/framework
+# /src/python/ @your-organization/backend-team
+# /src/javascript/ @your-organization/frontend-team
+# /src/typescript/ @your-organization/frontend-team
+# /agents/ @your-organization/ai-team @your-organization/backend-team
+
+# Test files require review from respective teams
+# /tests/ @your-organization/qa-team
+# /test/ @your-organization/qa-team
+# /**/*test*.py @your-organization/qa-team @your-organization/backend-team
+# /**/*test*.js @your-organization/qa-team @your-organization/frontend-team
+# /**/*spec*.js @your-organization/qa-team @your-organization/frontend-team
+
+# License and legal files require legal review
+# /LICENSE* @your-organization/legal-team @your-organization/maintainers
+# /NOTICE* @your-organization/legal-team
+# /COPYRIGHT* @your-organization/legal-team
+
+# Template-specific files
+# /template/ @your-organization/maintainers
+# /examples/ @your-organization/docs-team @your-organization/maintainers

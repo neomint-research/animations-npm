@@ -6,12 +6,13 @@ module.exports = {
   },
   
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
+  setupFilesAfterEnv: ['<rootDir>/src/legacy/setupTests.js'],
   
   // Test patterns
   testMatch: [
     '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
-    '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}'
+    '<rootDir>/src/**/*.{test,spec}.{js,jsx,ts,tsx}',
+    '<rootDir>/test/**/*.{test,spec}.{js,jsx,ts,tsx}'
   ],
   testPathIgnorePatterns: [
     '/node_modules/',
@@ -38,8 +39,8 @@ module.exports = {
   collectCoverage: false,
   collectCoverageFrom: [
     'src/**/*.{js,jsx}',
-    '!src/index.js',
-    '!src/setupTests.js',
+    '!src/legacy/index.js',
+    '!src/legacy/setupTests.js',
     '!src/**/*.types.js',
     '!src/**/index.js',
     '!src/**/*.stories.js'

@@ -1,0 +1,209 @@
+name: Dependency Auto-Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Prevent multiple auto-merge attempts on the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  dependabot-auto-merge:
+    name: Auto-merge Dependabot PRs
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Performance optimization: Cache GitHub CLI and tools
+      - name: Cache GitHub CLI
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/gh
+            ~/.config/gh
+          key: ${{ runner.os }}-gh-cli-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-gh-cli-
+
+      - name: Get Dependabot Metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2.4.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check Security Update
+        id: security-check
+        run: |
+          echo "is_security_update=${{ contains(steps.metadata.outputs.dependency-names, 'security') || steps.metadata.outputs.update-type == 'version-update:semver-patch' }}" >> $GITHUB_OUTPUT
+          echo "is_minor_update=${{ steps.metadata.outputs.update-type == 'version-update:semver-minor' }}" >> $GITHUB_OUTPUT
+          echo "is_major_update=${{ steps.metadata.outputs.update-type == 'version-update:semver-major' }}" >> $GITHUB_OUTPUT
+
+      - name: Wait for CI Checks
+        id: wait-for-checks
+        continue-on-error: true
+        run: |
+          echo "Waiting for required checks to complete..."
+
+          # Wait for the Code Quality Validation check
+          max_attempts=15
+          attempt=0
+
+          while [ $attempt -lt $max_attempts ]; do
+            echo "Attempt $((attempt + 1))/$max_attempts: Checking for Code Quality Validation..."
+
+            # Get check runs for this commit
+            check_status=$(gh api repos/${{ github.repository }}/commits/${{ github.event.pull_request.head.sha }}/check-runs \
+              --jq '.check_runs[] | select(.name == "Code Quality Validation") | .status')
+
+            if [ "$check_status" = "completed" ]; then
+              echo "Code Quality Validation check completed"
+              break
+            elif [ -n "$check_status" ]; then
+              echo "Code Quality Validation check is $check_status, waiting..."
+            else
+              echo "Code Quality Validation check not found yet, waiting..."
+            fi
+
+            sleep 20
+            attempt=$((attempt + 1))
+          done
+
+          echo "Check wait completed after $attempt attempts"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-approve Security Updates
+        if: steps.security-check.outputs.is_security_update == 'true'
+        run: |
+          echo "Auto-approving security update: ${{ steps.metadata.outputs.update-type }}"
+          gh pr review --approve "$PR_URL" --body "Auto-approving security update from Dependabot"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-approve Patch Updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: |
+          echo "Auto-approving patch update"
+          gh pr review --approve "$PR_URL" --body "Auto-approving patch update from Dependabot"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Auto-merge Approved Updates
+        if: |
+          (steps.security-check.outputs.is_security_update == 'true' ||
+           steps.metadata.outputs.update-type == 'version-update:semver-patch') &&
+          github.event.pull_request.mergeable == true
+        run: |
+          echo "Enabling auto-merge for approved update"
+          gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on Major Updates
+        if: steps.security-check.outputs.is_major_update == 'true'
+        run: |
+          gh pr comment "$PR_URL" --body "🚨 **Major Version Update Detected**
+
+          This PR contains a major version update that requires manual review:
+          - **Dependency**: ${{ steps.metadata.outputs.dependency-names }}
+          - **Update Type**: ${{ steps.metadata.outputs.update-type }}
+          - **Previous Version**: ${{ steps.metadata.outputs.previous-version }}
+          - **New Version**: ${{ steps.metadata.outputs.new-version }}
+
+          Please review the changelog and breaking changes before merging.
+
+          **Note**: Please review the changelog and breaking changes before merging.
+          **Manual Review Required**: This update requires careful evaluation."
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add Labels
+        run: |
+          if [[ "${{ steps.security-check.outputs.is_security_update }}" == "true" ]]; then
+            gh pr edit "$PR_URL" --add-label "security,auto-merge"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-patch" ]]; then
+            gh pr edit "$PR_URL" --add-label "patch-update,auto-merge"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-minor" ]]; then
+            gh pr edit "$PR_URL" --add-label "minor-update,needs-review"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-major" ]]; then
+            gh pr edit "$PR_URL" --add-label "major-update,needs-manual-review"
+          fi
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  security-validation:
+    name: Security Validation for Auto-merge
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Performance optimization: Cache Trivy database for dependency scanning
+      - name: Cache Trivy database
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: ${{ runner.os }}-trivy-deps-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-deps-
+            ${{ runner.os }}-trivy-
+
+      - name: Run Security Scan on Dependencies
+        uses: aquasecurity/trivy-action@0.31.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'dependency-security.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Check for Critical Vulnerabilities
+        id: security-check
+        continue-on-error: true
+        run: |
+          # Check if SARIF file exists
+          if [[ ! -f "dependency-security.sarif" ]]; then
+            echo "Warning: dependency-security.sarif not found"
+            echo "has_vulnerabilities=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Check for critical vulnerabilities
+          if grep -q '"level": "error"' dependency-security.sarif; then
+            echo "Critical vulnerabilities found in dependencies"
+            echo "has_vulnerabilities=true" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "No critical vulnerabilities found"
+            echo "has_vulnerabilities=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Block Auto-merge on Security Issues
+        if: steps.security-check.outputs.has_vulnerabilities == 'true'
+        run: |
+          gh pr comment "$PR_URL" --body "🛑 **Auto-merge Blocked**
+
+          Critical security vulnerabilities detected in this dependency update.
+          Manual security review required before merging.
+
+          **Manual Security Review Required**: Please review before merging."
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

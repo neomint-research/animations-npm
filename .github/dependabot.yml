@@ -1,51 +1,84 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  # GitHub Actions dependencies
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "08:00"
-    reviewers:
-      - "neomint-research/security-team"
-    assignees:
-      - "neomint-research/maintainers"
-    commit-message:
-      prefix: "deps"
-      prefix-development: "deps-dev"
-      include: "scope"
-    labels:
-      - "dependencies"
-      - "automated"
+      interval: 'daily'
+      time: '02:00'
+      timezone: 'UTC'
     open-pull-requests-limit: 10
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-patch"]
-    groups:
-      development-dependencies:
-        dependency-type: "development"
-        update-types:
-          - "minor"
-          - "patch"
-      production-dependencies:
-        dependency-type: "production"
-        update-types:
-          - "patch"
-
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "08:00"
-    reviewers:
-      - "neomint-research/security-team"
-    assignees:
-      - "neomint-research/maintainers"
+    # Note: Team references removed as they may not exist in all repositories
+    # Add specific usernames or recreate teams as needed:
+    # reviewers:
+    #   - 'username1'
+    # assignees:
+    #   - 'username2'
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: 'chore(deps)'
+      include: 'scope'
     labels:
-      - "github-actions"
-      - "automated"
-    open-pull-requests-limit: 5
+      - 'dependencies'
+      - 'github-actions'
+      - 'security'
+
+  # Python dependencies
+  - package-ecosystem: 'pip'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+      time: '02:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 10
+    # Note: Team references removed as they may not exist in all repositories
+    # Add specific usernames or recreate teams as needed:
+    # reviewers:
+    #   - 'username1'
+    # assignees:
+    #   - 'username2'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'python'
+      - 'security'
+    allow:
+      - dependency-type: 'direct'
+      - dependency-type: 'indirect'
+    ignore:
+      # Ignore major version updates for stability
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # Node.js dependencies
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+      time: '02:00'
+      timezone: 'UTC'
+    open-pull-requests-limit: 10
+    # Note: Team references removed as they may not exist in all repositories
+    # Add specific usernames or recreate teams as needed:
+    # reviewers:
+    #   - 'username1'
+    # assignees:
+    #   - 'username2'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'npm'
+      - 'security'
+    allow:
+      - dependency-type: 'direct'
+      - dependency-type: 'indirect'
+    ignore:
+      # Ignore major version updates for stability
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
+
+  # Note: Docker and Terraform ecosystems removed as no corresponding files exist in this template
+  # Add them back when Dockerfile or *.tf files are added to the repository
