@@ -6,12 +6,15 @@ node_modules/
 dist/
 build/
 out/
+lib/
+*.tsbuildinfo
 
 # Testing
 coverage/
 test-results/
 *.lcov
 .jest-cache/
+.jest-cache/**/*
 
 # Logs
 *.log
@@ -53,6 +56,12 @@ Desktop.ini
 .eslintcache
 .stylelintcache
 .parcel-cache/
+
+# Bundle analysis and performance
+bundle-analysis.html
+stats.json
+*.stats.json
+performance-report.json
 
 # Temporary files
 *.tmp

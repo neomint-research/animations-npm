@@ -1,38 +1,18 @@
 /**
  * @neomint/animations - Main Entry Point
- *
- * This is the main entry point for the @neomint/animations library.
- * Provides both legacy and modern component exports for seamless migration.
- *
+ * Dual-export system: Legacy (JS) + Modern (TS) components
  * @version 2.0.0-beta
- * @author NEOMINT Research
  */
 
-// ============================================================================
-// Legacy Exports (Backward Compatibility)
-// ============================================================================
-
-// Re-export everything from the legacy implementation
+// Legacy exports (backward compatibility)
 export * from './legacy/index.js';
-
-// Import the legacy component for default export
 import { DataNetwork as LegacyDataNetwork } from './legacy/index.js';
-
-// Import and re-export utilities as a namespace
 import * as legacyUtils from './legacy/utils';
-
-// Export utils as a named object for backward compatibility
 export const utils = legacyUtils;
 
-// ============================================================================
-// Modern Component Exports (TypeScript)
-// ============================================================================
-
-// Modern TypeScript components (available alongside legacy)
-// Note: These will be available after TypeScript compilation
+// Modern components (TypeScript)
 let ModernComponents = {};
 try {
-  // Try to import compiled TypeScript components
   const components = require('../dist/ts/components/index.js');
   ModernComponents = {
     ModernDataNetwork: components.DataNetwork,
@@ -44,11 +24,9 @@ try {
     useErrorHandler: components.useErrorHandler
   };
 } catch (error) {
-  // TypeScript components not available (development mode)
-  console.warn('[neomint/animations] Modern TypeScript components not available. Run `npm run build:ts` first.');
+  console.warn('[neomint/animations] Modern components unavailable. Run `npm run build:ts`.');
 }
 
-// Export modern components if available
 export const {
   ModernDataNetwork,
   NetworkCanvas,
@@ -59,11 +37,7 @@ export const {
   useErrorHandler
 } = ModernComponents;
 
-// TypeScript types are available through separate .d.ts files
-// Import them in TypeScript projects with:
-// import type { NetworkProps, NetworkNodeData, ... } from '@neomint/animations';
-
-// Constants and presets (try to import from compiled TypeScript)
+// Modern constants
 let ModernConstants = {};
 try {
   const constants = require('../dist/ts/components/constants/index.js');
@@ -74,49 +48,17 @@ try {
     PERFORMANCE_CONSTANTS: constants.PERFORMANCE_CONSTANTS
   };
 } catch (error) {
-  // Use fallback constants
-  ModernConstants = {
-    NETWORK_DEFAULTS: {},
-    THEME_PRESETS: {},
-    PERFORMANCE_TIERS: {},
-    PERFORMANCE_CONSTANTS: {}
-  };
+  ModernConstants = { NETWORK_DEFAULTS: {}, THEME_PRESETS: {}, PERFORMANCE_TIERS: {}, PERFORMANCE_CONSTANTS: {} };
 }
 
-export const {
-  NETWORK_DEFAULTS,
-  THEME_PRESETS,
-  PERFORMANCE_TIERS,
-  PERFORMANCE_CONSTANTS
-} = ModernConstants;
+export const { NETWORK_DEFAULTS, THEME_PRESETS, PERFORMANCE_TIERS, PERFORMANCE_CONSTANTS } = ModernConstants;
 
-// ============================================================================
-// Theme System (Enhanced)
-// ============================================================================
-
-// Use modern theme presets if available
-
-// Export enhanced themes object with legacy themes and modern theme presets
+// Enhanced themes (legacy + modern)
 export const themes = {
-  // Legacy themes for backward compatibility
-  default: {
-    nodeColor: '#3498db',
-    edgeColor: '#95a5a6',
-    backgroundColor: '#ffffff'
-  },
-  dark: {
-    nodeColor: '#e74c3c',
-    edgeColor: '#bdc3c7',
-    backgroundColor: '#2c3e50'
-  },
-  // Modern theme presets (if available)
+  default: { nodeColor: '#3498db', edgeColor: '#95a5a6', backgroundColor: '#ffffff' },
+  dark: { nodeColor: '#e74c3c', edgeColor: '#bdc3c7', backgroundColor: '#2c3e50' },
   ...(THEME_PRESETS || {})
 };
 
-// ============================================================================
-// Default Export Strategy
-// ============================================================================
-
-// Default export remains the legacy component for backward compatibility
-// Users can opt into the modern component by importing { ModernDataNetwork }
+// Default export (legacy for backward compatibility)
 export default LegacyDataNetwork;

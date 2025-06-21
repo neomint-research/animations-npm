@@ -4,7 +4,7 @@
  */
 
 // Import testing library extensions
-import '@testing-library/jest-dom';
+require('@testing-library/jest-dom');
 
 // Mock canvas and WebGL contexts for D3.js and visualization tests
 global.HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
