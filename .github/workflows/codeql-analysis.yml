@@ -1,0 +1,78 @@
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [ main, refactor/golden-repo-migration ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+# Prevent multiple CodeQL scans from interfering
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  analyze:
+    name: Analyze JavaScript/TypeScript
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Performance optimization: Cache CodeQL databases
+      - name: Cache CodeQL database
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/codeql
+            /opt/hostedtoolcache/CodeQL
+          key: ${{ runner.os }}-codeql-javascript-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+          restore-keys: |
+            ${{ runner.os }}-codeql-javascript-
+            ${{ runner.os }}-codeql-
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript
+          queries: security-extended,security-and-quality
+          config: |
+            paths:
+              - src
+              - test
+            paths-ignore:
+              - node_modules
+              - dist
+              - coverage
+              - '**/*.min.js'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project for analysis
+        run: npm run build:prod
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: '/language:javascript'
+          upload: true

@@ -6,7 +6,10 @@ module.exports = {
   },
   
   // Setup files
-  setupFilesAfterEnv: ['<rootDir>/src/legacy/setupTests.js'],
+  setupFilesAfterEnv: [
+    '<rootDir>/src/legacy/setupTests.js',
+    '<rootDir>/test/setup.js'
+  ],
   
   // Test patterns
   testMatch: [
@@ -25,11 +28,12 @@ module.exports = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/__mocks__/fileMock.js'
   },
-  moduleFileExtensions: ['js', 'jsx', 'json', 'node'],
-  
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
+
   // Transform configuration
   transform: {
-    '^.+\\.(js|jsx)$': 'babel-jest'
+    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   transformIgnorePatterns: [
     'node_modules/(?!(iconoir-react)/)'
@@ -38,12 +42,13 @@ module.exports = {
   // Coverage configuration
   collectCoverage: false,
   collectCoverageFrom: [
-    'src/**/*.{js,jsx}',
+    'src/**/*.{js,jsx,ts,tsx}',
     '!src/legacy/index.js',
     '!src/legacy/setupTests.js',
-    '!src/**/*.types.js',
-    '!src/**/index.js',
-    '!src/**/*.stories.js'
+    '!src/**/*.types.{js,ts}',
+    '!src/**/index.{js,ts}',
+    '!src/**/*.stories.{js,ts}',
+    '!src/**/*.d.ts'
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html', 'json'],
@@ -71,5 +76,15 @@ module.exports = {
   // Reporting
   verbose: true,
   notify: false,
-  notifyMode: 'failure-change'
+  notifyMode: 'failure-change',
+
+  // TypeScript configuration
+  preset: 'ts-jest/presets/js-with-ts',
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        jsx: 'react-jsx'
+      }
+    }
+  }
 };
